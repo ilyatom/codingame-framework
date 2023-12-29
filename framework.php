@@ -31,6 +31,11 @@ trait coordinates {
     public function coordinates() { return [$this->x, $this->y]; }
 }
 
+trait id {
+    private $id;
+    public function id() { return $this->id; }
+}
+
 // classes
 
 class Point implements Positioned
