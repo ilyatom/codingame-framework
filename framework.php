@@ -292,19 +292,6 @@ class Map
 
 }
 
-    public static function rose2deg(string $letters) : Int
-    {
-        $aliases = ['E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW','N','NNE','NE','ENE'];
-        $turn = 360/count($aliases);
-        $angleForAlias = 0;
-        $rose = [];
-        foreach($aliases as $alias) {
-            $rose[$alias] = $angleForAlias;
-            $angleForAlias += $turn;
-        }
-        return $rose[$letters];
-    }
-
 // functions
 
 function rose2deg(string $letters) : Int
