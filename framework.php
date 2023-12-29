@@ -34,10 +34,10 @@ class Point implements Positioned
 
     public function coordinates() { return [$this->x, $this->y]; }
 
-    public function __construct($x, $y)
+    public function __construct(int $x, int $y)
     {
-        $this->x = intval($x);
-        $this->y = intval($y);
+        $this->x = $x;
+        $this->y = $y;
     }
 }
 
@@ -122,7 +122,7 @@ class Map
     private static $maxX;
     private static $maxY;
     
-    public function __construct($maxX, $maxY) {
+    public function __construct(int $maxX, int $maxY) {
         self::$maxX = $maxX;
         self::$maxY = $maxY;
     }
@@ -161,33 +161,33 @@ class Map
         return $corners;
     }
 
-    public static function getNearestCorner(Positioned $center) {
-        return getNearest($center, self::corners());
+    public static function nearestCorner(Positioned $center) {
+        return nearest($center, self::corners());
     }
 
-    public static function getNearest(Positioned $center, array $objects): object
+    public static function nearest(Positioned $center, array $objects): object
     {
         $res = [];
         foreach ($objects as $object) {
-            $res[self::getDistance($center, $object)] = $object;
+            $res[self::distance($center, $object)] = $object;
         }
         ksort($res);
         $res = array_slice($res, 0, 1)[0];
         return $res;
     }
     
-    public static function getNearestObjects(Positioned $center, array $objects, int $quantity = 1): Collection
+    public static function nearestObjects(Positioned $center, array $objects, int $quantity = 1): Collection
     {
         $res = [];
         foreach ($objects as $object) {
-            $res[self::getDistance($center, $object)] = $object;
+            $res[self::distance($center, $object)] = $object;
         }
         ksort($res);
         $res = array_slice($res, 0, $quantity);
         return new Collection($res);
     }
 
-    public static function getDistance(Positioned $object1, Positioned $object2): int
+    public static function distance(Positioned $object1, Positioned $object2): int
     {
         [$x1, $y1] = $object1->coordinates();
         [$x2, $y2] = $object2->coordinates();
@@ -205,47 +205,32 @@ class Map
         return $absRes;
     }
 
-    public static function getObjectsInRadius(Positioned $center, array $objects, int $radius) : Collection
+    public static function objectsInRadius(Positioned $center, array $objects, int $radius) : Collection
     {
         $res = [];
         foreach($objects as $object) {
-            if(self::getDistance($center, $object) <= $radius) {
+            if(self::distance($center, $object) <= $radius) {
                 $res[] = $object;
             }
         }
         return new Collection($res);
     }
 
-    // vectors
-    private static function getVectorCoordinates(Positioned $start, Positioned $end) {
-        [$x1, $y1] = $start->coordinates();
-        [$x2, $y2] = $end->coordinates();
-        return [$x2-$x1, $y2-$y1];
-    }
-
-    private static function getScalarProduct($vector1, $vector2) {
-        return $vector1[0]*$vector2[0] + $vector1[1]*$vector2[1];
-    }
-
-    private static function getVectorModule($vector) {
-        return sqrt(pow($vector[0], 2)+pow($vector[1], 2));
-    }
-
-    public static function getReverseDirection(Positioned $start, Positioned $end) : int
+    public static function reverseDirection(Positioned $start, Positioned $end) : int
     {
-        $direction = self::getDirection($start, $end);
+        $direction = self::direction($start, $end);
         $res = $direction >= 180 ? $direction - 180 : $direction + 180;
         return intval($res);
     }
     
-    public static function getDirection(Positioned $start, Positioned $end) : int
+    public static function direction(Positioned $start, Positioned $end) : int
     {
         $firstVectorEnd = new Point(self::$maxX, $start->coordinates()[1]);
-        $vector1 = self::getVectorCoordinates($start, $firstVectorEnd);
-        $vector2 = self::getVectorCoordinates($start, $end);
-        $scalar = self::getScalarProduct($vector1, $vector2);
-        $moduleV1 = self::getVectorModule($vector1);
-        $moduleV2 = self::getVectorModule($vector2);
+        $vector1 = self::vectorCoordinates($start, $firstVectorEnd);
+        $vector2 = self::vectorCoordinates($start, $end);
+        $scalar = self::scalarProduct($vector1, $vector2);
+        $moduleV1 = self::vectorModule($vector1);
+        $moduleV2 = self::vectorModule($vector2);
         $modulesProduct = $moduleV1 * $moduleV2;
 
         if($modulesProduct != 0) {
@@ -266,12 +251,12 @@ class Map
 
     public static function directionBetweenPoints(Positioned $start, Positioned $end1, Positioned $end2) : Int
     {
-        $angle1 = self::getDirection($start, $end1);
-        $angle2 = self::getDirection($start, $end2);
+        $angle1 = self::direction($start, $end1);
+        $angle2 = self::direction($start, $end2);
         return intval(($angle1+$angle2)/2);
     }
 
-    public static function directionBetween(int $angle1, int $angle2) : Int
+    public static function directionBetweenAngles(int $angle1, int $angle2) : Int
     {
         return intval(($angle1+$angle2)/2);
     }
@@ -288,6 +273,21 @@ class Map
         $x = $centerX + $distance * cos($angle);
         $y = $centerY + $distance * sin($angle);
         return new Point($x, $y);
+    }
+
+    // private: vectors
+    private static function vectorCoordinates(Positioned $start, Positioned $end) {
+        [$x1, $y1] = $start->coordinates();
+        [$x2, $y2] = $end->coordinates();
+        return [$x2-$x1, $y2-$y1];
+    }
+    
+    private static function scalarProduct(array $vector1, array $vector2) {
+        return $vector1[0]*$vector2[0] + $vector1[1]*$vector2[1];
+    }
+    
+    private static function vectorModule(array $vector) {
+        return sqrt(pow($vector[0], 2)+pow($vector[1], 2));
     }
 
 }
