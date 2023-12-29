@@ -308,5 +308,5 @@ function rose2deg(string $letters) : Int
 }
 
 function dump($var, string $msg = '') {
-    error_log("$msg\n".var_export($var, true));
+    error_log("= $msg ====\n".var_export($var, true));
 }
