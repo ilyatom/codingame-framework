@@ -25,14 +25,17 @@ trait universalGetterSetter {
     }
 }
 
+trait coordinates {
+    private $x;
+    private $y;
+    public function coordinates() { return [$this->x, $this->y]; }
+}
+
 // classes
 
 class Point implements Positioned
 {
-    private $x;
-    private $y;
-
-    public function coordinates() { return [$this->x, $this->y]; }
+    use coordinates;
 
     public function __construct(int $x, int $y)
     {
